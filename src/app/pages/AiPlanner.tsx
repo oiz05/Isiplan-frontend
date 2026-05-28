@@ -193,7 +193,7 @@ export function AiPlanner() {
     const message = error instanceof Error ? error.message : String(error);
 
     if (message === "Gemini API key is not configured") {
-      return "No encuentro la clave de Gemini. Revisa que `VITE_GEMINI_API_KEY` esté configurada en tu entorno local y reinicia `npm run dev`.";
+      return "No encuentro la clave de Gemini. Revisa que `GEMINI_API_KEY` esté configurada en Vercel o en `vercel dev`.";
     }
 
     if (message.includes("429") || message.toLowerCase().includes("quota")) {

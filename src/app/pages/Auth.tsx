@@ -146,8 +146,8 @@ export function Auth() {
 
           <button 
             type="button"
-            onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/google"}
-            className="w-full bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-3 shadow-sm"
+            disabled
+            className="w-full bg-slate-100 border border-slate-200 text-slate-400 font-bold py-3.5 rounded-2xl cursor-not-allowed flex items-center justify-center gap-3 shadow-sm"
           >
             <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
               <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
@@ -157,7 +157,7 @@ export function Auth() {
                 <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 41.939 C -8.804 39.869 -11.514 38.739 -14.754 38.739 C -19.444 38.739 -23.494 41.439 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
               </g>
             </svg>
-            Continuar con Google
+            Google próximamente
           </button>
 
           <p className="text-center text-sm font-medium text-slate-500 pt-4">
