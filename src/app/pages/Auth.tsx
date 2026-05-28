@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { useNavigate } from "react-router"
 import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Compass } from "lucide-react"
@@ -9,10 +9,19 @@ export function Auth() {
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get("token")
+    if (token) {
+      localStorage.setItem("auth_token", token)
+      window.history.replaceState({}, document.title, window.location.pathname)
+      navigate("/home")
+    }
+  }, [navigate])
+
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault()
-    // Simulate auth
-    navigate("/explore")
+    navigate("/home")
   }
 
   return (
@@ -137,6 +146,7 @@ export function Auth() {
 
           <button 
             type="button"
+            onClick={() => window.location.href = "http://localhost:8080/oauth2/authorization/google"}
             className="w-full bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl hover:bg-slate-50 transition-colors flex items-center justify-center gap-3 shadow-sm"
           >
             <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">

@@ -1,1 +1,5 @@
 /node_modules
+.env*
+!.env.example
+gemini_api_key.txt
+geopify-api-key.txt

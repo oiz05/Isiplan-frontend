@@ -1,8 +1,20 @@
 import { motion } from "motion/react"
-import { Search, MapPin, Calendar, ArrowRight, Star, Clock } from "lucide-react"
+import { useState } from "react"
+import { Search, MapPin, Calendar, ArrowRight, Star, Clock, LocateFixed, Loader2 } from "lucide-react"
 import { useNavigate } from "react-router"
+import { fetchNearbyPlaces, type NearbyPlace } from "../../services/geoapifyPlacesService"
 
-const DESTINATIONS = [
+interface DestinationCard {
+  id: number | string
+  name: string
+  image: string
+  rating: number
+  price: string
+  tags: string[]
+  distance?: number | null
+}
+
+const DESTINATIONS: DestinationCard[] = [
   {
     id: 1,
     name: "París, Francia",
@@ -31,6 +43,52 @@ const DESTINATIONS = [
 
 export function Home() {
   const navigate = useNavigate()
+  const [nearbyDestinations, setNearbyDestinations] = useState<DestinationCard[]>([])
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false)
+  const [recommendationsError, setRecommendationsError] = useState<string | null>(null)
+
+  const recommendations = nearbyDestinations.length > 0 ? nearbyDestinations : DESTINATIONS
+
+  const handleUseLocation = () => {
+    if (!navigator.geolocation) {
+      setRecommendationsError('Tu navegador no soporta geolocalización. Te mostramos recomendaciones populares.')
+      return
+    }
+
+    setIsLoadingRecommendations(true)
+    setRecommendationsError(null)
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords
+          const places = await fetchNearbyPlaces({ lat: latitude, lng: longitude })
+
+          if (places.length === 0) {
+            setRecommendationsError('No encontramos lugares cercanos. Te mostramos recomendaciones populares.')
+            setNearbyDestinations([])
+            return
+          }
+
+          setNearbyDestinations(places.map(mapNearbyPlaceToDestination))
+        } catch {
+          setRecommendationsError('No pudimos cargar lugares cercanos. Te mostramos recomendaciones populares.')
+          setNearbyDestinations([])
+        } finally {
+          setIsLoadingRecommendations(false)
+        }
+      },
+      (error) => {
+        const message = error.code === error.PERMISSION_DENIED
+          ? 'Activa el permiso de ubicación para ver recomendaciones cercanas.'
+          : 'No pudimos obtener tu ubicación. Intenta de nuevo.'
+
+        setRecommendationsError(message)
+        setIsLoadingRecommendations(false)
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    )
+  }
 
   return (
     <div className="p-6 md:p-10 pb-32 md:pb-10 w-full max-w-7xl mx-auto space-y-12">
@@ -86,7 +144,7 @@ export function Home() {
           <div className="space-y-3 text-white max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-xs font-semibold uppercase tracking-wider backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-teal-300 animate-pulse" />
-              Notion AI + Travel
+              Gemini AI + Travel
             </div>
             <h2 className="text-2xl md:text-3xl font-bold leading-tight">Genera tu itinerario perfecto en segundos</h2>
             <p className="text-blue-50">Dinos qué te gusta, tu presupuesto y nosotros armamos el viaje completo con IA.</p>
@@ -155,17 +213,36 @@ export function Home() {
       {/* Suggested Destinations */}
       <div className="space-y-6">
         <div className="flex justify-between items-end">
-          <h3 className="text-xl font-bold flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-teal-500" />
-            Recomendados para ti
-          </h3>
-          <button className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">
-            Ver todos
-          </button>
+          <div className="space-y-1">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <MapPin className="w-6 h-6 text-teal-500" />
+              Recomendados para ti
+            </h3>
+            {recommendationsError && (
+              <p className="text-sm text-slate-500">{recommendationsError}</p>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleUseLocation}
+              disabled={isLoadingRecommendations}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 text-teal-700 rounded-xl text-sm font-semibold hover:bg-teal-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLoadingRecommendations ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <LocateFixed className="w-4 h-4" />
+              )}
+              {isLoadingRecommendations ? 'Buscando cerca de ti...' : nearbyDestinations.length > 0 ? 'Actualizar ubicación' : 'Usar mi ubicación'}
+            </button>
+            <button className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+              Ver todos
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {DESTINATIONS.map((dest, i) => (
+          {recommendations.map((dest, i) => (
             <motion.div
               key={dest.id}
               initial={{ opacity: 0, y: 20 }}
@@ -189,8 +266,14 @@ export function Home() {
                   <h4 className="font-bold text-lg text-slate-800">{dest.name}</h4>
                   <span className="text-slate-500 text-sm font-medium">{dest.price}</span>
                 </div>
+                {dest.distance != null && (
+                  <div className="flex items-center gap-1 text-sm font-medium text-teal-600">
+                    <LocateFixed className="w-4 h-4" />
+                    A {formatDistance(dest.distance)}
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2">
-                  {dest.tags.map(tag => (
+                  {(dest.tags.length > 0 ? dest.tags : ['Cerca de ti']).map(tag => (
                     <span key={tag} className="px-2 py-1 bg-slate-100 text-slate-600 rounded-md text-xs font-medium">
                       {tag}
                     </span>
@@ -204,4 +287,24 @@ export function Home() {
 
     </div>
   )
+}
+
+function mapNearbyPlaceToDestination(place: NearbyPlace): DestinationCard {
+  return {
+    id: place.id,
+    name: place.name,
+    image: place.image,
+    rating: place.rating,
+    price: place.price,
+    tags: place.tags,
+    distance: place.distance,
+  }
+}
+
+function formatDistance(distance: number): string {
+  if (distance < 1000) {
+    return `${Math.round(distance)} m`
+  }
+
+  return `${(distance / 1000).toFixed(1)} km`
 }
