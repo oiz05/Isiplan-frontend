@@ -1,5 +1,4 @@
-import { ReactNode } from "react"
-import { NavLink, useLocation } from "react-router"
+import { NavLink, Outlet, useLocation } from "react-router"
 import { motion } from "motion/react"
 import { 
   Home, 
@@ -22,7 +21,7 @@ const NAV_ITEMS = [
   { icon: MessageSquare, label: "AI Planner", path: "/ai-chat" },
 ]
 
-export function Layout({ children }: { children: ReactNode }) {
+export function Layout() {
   const location = useLocation()
 
   return (
@@ -38,7 +37,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
         <nav className="flex-1 space-y-2">
           {NAV_ITEMS.map((item) => {
-            const isActive = location.pathname === item.path
+            const isActive = location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
             return (
               <NavLink
                 key={item.path}
@@ -88,14 +87,14 @@ export function Layout({ children }: { children: ReactNode }) {
       {/* Main Content Area */}
       <main className="flex-1 h-full flex flex-col min-w-0 px-4 pt-4 pb-24 md:px-6 md:py-6 relative">
         <div className="glass-panel w-full h-full overflow-y-auto overflow-x-hidden flex flex-col relative z-10 custom-scrollbar">
-          {children}
+          <Outlet />
         </div>
       </main>
 
       {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 glass-panel rounded-none rounded-t-3xl border-b-0 pb-safe z-50 px-4 py-4 flex justify-between items-center">
         {NAV_ITEMS.map((item) => {
-          const isActive = location.pathname === item.path
+          const isActive = location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
           return (
             <NavLink
               key={item.path}
