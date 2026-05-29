@@ -15,31 +15,36 @@ export const router = createBrowserRouter([
     element: <Auth />,
   },
   {
-    path: "/home",
-    element: <Layout><Home /></Layout>,
-  },
-  {
-    path: "/explore",
-    element: <Layout><Explore /></Layout>,
-  },
-  {
-    path: "/explore/:id",
-    element: <DestinationDetail />,
-  },
-  {
-    path: "/itinerary",
-    element: <Layout><Itinerary /></Layout>,
-  },
-  {
-    path: "/budget",
-    element: <Layout><Budget /></Layout>,
-  },
-  {
-    path: "/map",
-    element: <Layout><MapView /></Layout>,
-  },
-  {
-    path: "/ai-chat",
-    element: <Layout><AiPlanner /></Layout>,
+    element: <Layout />,
+    children: [
+      {
+        path: "home",
+        element: <Home />,
+      },
+      {
+        path: "explore",
+        element: <Explore />,
+      },
+      {
+        path: "explore/:id",
+        element: <DestinationDetail />,
+      },
+      {
+        path: "itinerary",
+        element: <Itinerary />,
+      },
+      {
+        path: "budget",
+        element: <Budget />,
+      },
+      {
+        path: "map",
+        element: <MapView />,
+      },
+      {
+        path: "ai-chat",
+        element: <AiPlanner />,
+      },
+    ],
   }
 ])

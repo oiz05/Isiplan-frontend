@@ -1,0 +1,8 @@
+allowBuilds:
+  '@google/genai': false
+  '@tailwindcss/oxide': true
+  esbuild: true
+  protobufjs: false
+minimumReleaseAge: 1440
+overrides:
+  vite: 6.4.2

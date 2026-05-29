@@ -23,6 +23,10 @@ const MODE_ICONS: Record<RouteMode, typeof Footprints> = {
 }
 
 const MOCK_PLANS = ["Escapada a París", "Verano en Tokio"];
+const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY
+const TILE_LAYER_URL = GEOAPIFY_API_KEY
+  ? `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_API_KEY}`
+  : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
 const DESTINATION_INFO = {
   louvre: {
@@ -85,9 +89,11 @@ export function MapView() {
         attributionControl: false,
       })
 
-      L.tileLayer('https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=96d3fdfdd8e84bd6b3959f52012ac15e', {
+      L.tileLayer(TILE_LAYER_URL, {
         maxZoom: 20,
-        attribution: 'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | © OpenStreetMap <a href="https://www.openstreetmap.org/copyright" target="_blank">contributors</a>',
+        attribution: GEOAPIFY_API_KEY
+          ? 'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | © OpenStreetMap <a href="https://www.openstreetmap.org/copyright" target="_blank">contributors</a>'
+          : '© OpenStreetMap <a href="https://www.openstreetmap.org/copyright" target="_blank">contributors</a>',
       }).addTo(map)
 
       map.on('click', (e: L.LeafletMouseEvent) => {

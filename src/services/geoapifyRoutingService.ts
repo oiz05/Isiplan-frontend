@@ -14,7 +14,7 @@ export interface RouteInfo {
   available: boolean
 }
 
-const API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY ?? '96d3fdfdd8e84bd6b3959f52012ac15e'
+const API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY
 
 const MODE_LABELS: Record<RouteMode, string> = {
   walk: 'A pie',
@@ -34,6 +34,10 @@ export interface FetchRouteParams {
 }
 
 export async function fetchRoute({ origin, destination, mode }: FetchRouteParams): Promise<RouteInfo> {
+  if (!API_KEY) {
+    return { mode, duration: 0, distance: 0, geometry: [], available: false }
+  }
+
   const waypoints = `${origin.lat},${origin.lng}|${destination.lat},${destination.lng}`
   const url = `https://api.geoapify.com/v1/routing?waypoints=${waypoints}&mode=${mode}&format=geojson&apiKey=${API_KEY}`
 
