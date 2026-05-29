@@ -1,3 +1,0 @@
-I'm using Geoapify.
-API KEY = configure VITE_GEOAPIFY_API_KEY in your local or Vercel environment.
-Map Style = osm-bright
