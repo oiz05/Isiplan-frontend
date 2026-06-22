@@ -1,6 +1,6 @@
 
   # Isiplan Web App
-
+  Sistema de generación de planes de viaje con IA
 
   ## Running the code
 
